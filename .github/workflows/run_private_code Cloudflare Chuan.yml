@@ -168,12 +168,17 @@ jobs:
           python -m pip install google-api-python-client google-auth google-auth-httplib2 google-auth-oauthlib
           # Torch CPU + Torchaudio (đúng index CPU)
           python -m pip install "torch==2.3.1" "torchaudio==2.3.1" --index-url https://download.pytorch.org/whl/cpu
-          # Whisper (gói đúng tên: openai-whisper)
+          
+          # Re-pin lại backend build (tránh requirements kéo lệch)
+          python -m pip install --force-reinstall "setuptools==69.5.1" "wheel==0.43.0"
+          python -c "import pkg_resources; print('pkg_resources still OK')"
+
+          # Cài whisper KHÔNG build isolation
           python -m pip install --no-build-isolation --no-cache-dir "openai-whisper==20231117"
-          # loc banner qr
-          python -m pip install opencv-python-headless
-          # Kiểm tra import (dùng python -c để tránh lỗi YAML here-doc)
-          python -c "import sys; import whisper, torch, torchaudio; print('Whisper/Torch OK:', whisper.__version__, torch.__version__)"
+
+          # Verify
+          python -c "import whisper, torch, torchaudio, numpy, cv2, pkg_resources; print('ALL OK:', whisper.__version__, torch.__version__)"
+          python -m pip check || true
 
       - name: Install Python deps
         run: |
